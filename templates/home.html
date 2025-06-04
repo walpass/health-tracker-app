@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="jumbotron text-center mt-5">
+        <h1 class="display-4">ようこそ！ＷＡＬＰＡＳＳアプリへ</h1>
+        <p class="lead">あなたの体重とBMIを記録し、推移をグラフで視覚化しましょう。</p>
+        <hr class="my-4">
+        <p>健康的な生活をサポートします。</p>
+        <a class="btn btn-primary btn-lg" href="{{ url_for('register') }}" role="button">新規登録</a>
+        <a class="btn btn-secondary btn-lg" href="{{ url_for('login') }}" role="button">ログイン</a>
+    </div>
+{% endblock %}

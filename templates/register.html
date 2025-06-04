@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}新規登録 - 健康記録{% endblock %}
+
+{% block content %}
+    <h2 class="mb-4">新規登録</h2>
+    <form method="POST" action="{{ url_for('register') }}">
+        <div class="mb-3">
+            <label for="username" class="form-label">ユーザー名</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">メールアドレス</label>
+            <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">パスワード</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">登録</button>
+    </form>
+    <p class="mt-3">すでにアカウントをお持ちですか？ <a href="{{ url_for('login') }}">ログイン</a></p>
+{% endblock %}
