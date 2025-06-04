@@ -255,4 +255,4 @@ if __name__ == '__main__':
     # Renderではビルドコマンドで一度だけ実行するため、ここではコメントアウトしておく
     # with app.app_context():
     #     db.create_all()
-    app.run(debug=True)
+     pass 
