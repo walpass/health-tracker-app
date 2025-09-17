@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="mt-4 mb-4 text-center">{{ title }}</h2>
+
+            {% if current_user.group_id %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        あなたのグループ: {{ current_user.group.name }}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">グループメンバーの検索と招待</h5>
+                        <form method="POST" action="{{ url_for('add_member_to_group') }}" class="mb-4">
+                            {{ form.hidden_tag() }}
+                            <div class="mb-3">
+                                {{ form.search_query.label(class="form-label") }}
+                                {{ form.search_query(class="form-control", placeholder="ユーザー名またはメールアドレスを入力") }}
+                                {% if form.search_query.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.search_query.errors %}<p>{{ error }}</p>{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <button type="submit" class="btn btn-primary">検索</button>
+                        </form>
+
+                        {% if users_found %}
+                            <h5 class="mt-4">検索結果:</h5>
+                            <ul class="list-group">
+                                {% for user in users_found %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ user.username }} ({{ user.email }})
+                                        <form method="POST" action="{{ url_for('add_member_to_group') }}">
+                                            <input type="hidden" name="invite_user_id" value="{{ user.id }}">
+                                            <button type="submit" class="btn btn-success btn-sm">招待</button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">検索条件を入力してユーザーを検索してください。</p>
+                        {% endif %}
+
+                        <h5 class="mt-5">現在のグループメンバー:</h5>
+                        {% if current_user.group and current_user.group.members %}
+                            <ul class="list-group">
+                                {% for member in current_user.group.members %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ member.username }} ({{ member.email }})
+                                        {% if member.role == 'leader' %}
+                                            <span class="badge bg-primary">リーダー</span>
+                                        {% else %}
+                                            {% if member.id != current_user.id %} {# 自分自身は削除できないようにする #}
+                                                <form method="POST" action="{{ url_for('remove_member_from_group') }}"> {# このルートは後で作成します #}
+                                                    <input type="hidden" name="member_id_to_remove" value="{{ member.id }}">
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('本当にこのメンバーをグループから削除しますか？');">削除</button>
+                                                </form>
+                                            {% endif %}
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">このグループにはまだメンバーがいません。</p>
+                        {% endif %}
+
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-warning text-center" role="alert">
+                    グループに参加していないか、リーダーではありません。この機能を利用するには、まずグループを作成するか、グループリーダーに招待してもらう必要があります。
+                    <br>
+                    <a href="{{ url_for('new_group') }}" class="btn btn-info mt-3">新しいグループを作成する</a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock content %}

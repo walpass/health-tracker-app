@@ -11,6 +11,8 @@
             display: flex;
             min-height: 100vh;
             flex-direction: column;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
         .wrapper {
             flex: 1;
@@ -22,30 +24,41 @@
             color: white;
             padding-top: 20px;
             flex-shrink: 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            z-index: 1000;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.2);
         }
         .sidebar .nav-link {
             color: white;
             padding: 10px 20px;
+            text-decoration: none;
+            display: block;
         }
         .sidebar .nav-link:hover {
             background-color: #495057;
+            color: #f8f9fa;
         }
         .content {
             flex-grow: 1;
             padding: 20px;
+            margin-left: 250px;
         }
         .footer {
             background-color: #f8f9fa;
             padding: 20px;
             text-align: center;
             border-top: 1px solid #e9ecef;
+            color: #6c757d;
         }
         .table-container {
             overflow-x: auto;
         }
         .chart-container {
             width: 100%;
-            height: 400px; /* グラフの高さ */
+            height: 400px;
             margin-bottom: 20px;
             border: 1px solid #e9ecef;
             border-radius: 5px;
@@ -54,20 +67,23 @@
             justify-content: center;
             color: #6c757d;
         }
-        /* ロゴ用のスタイル (必要であれば調整) */
         .sidebar .logo-container {
             text-align: center;
             margin-bottom: 20px;
         }
         .sidebar .logo-container img {
-            max-width: 80%; /* ロゴの最大幅を調整 */
+            max-width: 180px;
             height: auto;
             display: block;
-            margin: 0 auto 10px auto; /* 中央寄せと下マージン */
+            margin: 0 auto 10px auto;
         }
         .sidebar .logo-container h4 {
-            color: white; /* アプリ名の文字色 */
+            color: white;
             margin-top: 0;
+        }
+        .alert {
+            margin-top: 15px;
+            margin-bottom: 15px;
         }
     </style>
 </head>
@@ -76,7 +92,7 @@
         <nav class="sidebar">
             <div class="logo-container">
                 <a href="{{ url_for('home') }}">
-                    <img src="{{ url_for('static', filename='company_logo.png') }}" alt="貴社ロゴ">
+                    <img src="{{ url_for('static', filename='company_logo_logged_in.png') }}" alt="貴社ロゴ">
                 </a>
                 <h4 class="text-center mb-4">健康記録</h4>
             </div>
@@ -86,9 +102,21 @@
                     <a class="nav-link" href="{{ url_for('dashboard') }}">ダッシュボード</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('profile') }}">目標設定</a> {# 仮のリンク。後で作成します #}
+                    <a class="nav-link" href="{{ url_for('new_record') }}">記録追加</a>
                 </li>
-                {% if current_user.is_admin %} {# admin機能は現在未実装ですが、テンプレートに残しておきます #}
+                {% if current_user.group_id is none %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('new_group') }}">グループ作成</a>
+                    </li>
+                {% elif current_user.role == 'leader' %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('add_member_to_group') }}">メンバー管理</a>
+                    </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('profile') }}">目標設定</a> 
+                </li>
+                {% if current_user.is_admin %}
                 <li class="nav-item">
                     <a class="nav-link" href="#">ユーザー管理 (開発中)</a>
                 </li>

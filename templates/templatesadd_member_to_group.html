@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ title }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ title }}</h2>
+    <hr>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {# メンバー検索フォーム #}
+    <form method="POST" action="{{ url_for('add_member_to_group') }}" class="mb-4">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.search_query.label(class="form-label") }}
+            {{ form.search_query(class="form-control", placeholder="ユーザー名またはメールアドレスを入力") }}
+            {% if form.search_query.errors %}
+                {% for error in form.search_query.errors %}
+                    <div class="text-danger">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <button type="submit" class="btn btn-primary">検索</button>
+    </form>
+
+    {# 検索結果の表示 #}
+    {% if users_found %}
+        <h3>検索結果:</h3>
+        <ul class="list-group">
+            {% for user in users_found %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ user.username }} ({{ user.email }})
+                    <form method="POST" action="{{ url_for('add_member_to_group') }}">
+                        {{ form.hidden_tag() }} {# フォーム内で隠しフィールドを再度追加 #}
+                        <input type="hidden" name="invite_user_id" value="{{ user.id }}">
+                        <button type="submit" class="btn btn-success btn-sm">招待する</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% elif form.is_submitted() and not users_found %}
+        <p class="alert alert-info">指定された条件に一致するユーザーは見つかりませんでした。</p>
+    {% endif %}
+
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mt-3">ダッシュボードに戻る</a>
+</div>
+{% endblock %}

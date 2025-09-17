@@ -1,34 +1,70 @@
 {% extends "base.html" %}
 
-{% block title %}目標設定 - 健康記録アプリ{% endblock %}
+{% block title %}
+{{ title }}
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3>目標設定</h3>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{{ url_for('profile') }}">
-                        <div class="mb-3">
-                            <label for="target_weight" class="form-label">目標体重 (kg)</label>
-                            <input type="number" step="0.1" class="form-control" id="target_weight" name="target_weight" 
-                                value="{{ current_user.target_weight if current_user.target_weight is not none else '' }}" 
-                                placeholder="例: 65.0" min="1" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="target_bmi" class="form-label">目標BMI</label>
-                            <input type="number" step="0.1" class="form-control" id="target_bmi" name="target_bmi" 
-                                value="{{ current_user.target_bmi if current_user.target_bmi is not none else '' }}" 
-                                placeholder="例: 22.0" min="1" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">目標を更新</button>
-                    </form>
-                </div>
-            </div>
+    <h2>プロフィール</h2>
+    <hr>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    <form method="POST" action="{{ url_for('profile') }}">
+        <div class="mb-3">
+            <label for="username" class="form-label">ユーザー名</label>
+            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
         </div>
-    </div>
+        <div class="mb-3">
+            <label for="target_weight" class="form-label">目標体重 (kg)</label>
+            <input type="number" step="0.1" class="form-control" id="target_weight" name="target_weight" value="{{ user.target_weight if user.target_weight else '' }}" placeholder="例: 65.0">
+        </div>
+        <div class="mb-3">
+            <label for="height" class="form-label">身長 (cm)</label>
+            <input type="number" step="0.1" class="form-control" id="height" name="height" value="{{ user.height if user.height else '' }}" placeholder="例: 170.0">
+        </div>
+        
+        {# 計算された目標BMIを表示するための要素 #}
+        <div class="mb-3">
+            <label for="calculated_target_bmi" class="form-label">計算された目標BMI</label>
+            <input type="text" class="form-control" id="calculated_target_bmi" value="" readonly>
+            <small class="text-muted">目標体重と身長から自動計算されます。</small>
+        </div>
+
+        <button type="submit" class="btn btn-primary">変更を保存</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">キャンセル</a>
+    </form>
 </div>
+
+{# JavaScriptでリアルタイムにBMIを計算して表示する #}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const targetWeightInput = document.getElementById('target_weight');
+        const heightInput = document.getElementById('height');
+        const calculatedBmiInput = document.getElementById('calculated_target_bmi');
+
+        function calculateAndDisplayBmi() {
+            const targetWeight = parseFloat(targetWeightInput.value);
+            const heightCm = parseFloat(heightInput.value);
+
+            if (!isNaN(targetWeight) && !isNaN(heightCm) && heightCm > 0) {
+                const heightM = heightCm / 100;
+                const bmi = targetWeight / (heightM * heightM);
+                calculatedBmiInput.value = bmi.toFixed(2); // 小数点以下2桁で表示
+            } else {
+                calculatedBmiInput.value = ''; // 無効な入力の場合はクリア
+            }
+        }
+
+        targetWeightInput.addEventListener('input', calculateAndDisplayBmi);
+        heightInput.addEventListener('input', calculateAndDisplayBmi);
+
+        calculateAndDisplayBmi(); // ページロード時にも一度計算を実行
+    });
+</script>
 {% endblock %}

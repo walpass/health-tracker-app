@@ -1,24 +1,34 @@
 {% extends "base.html" %}
 
-{% block title %}記録編集 - 健康記録{% endblock %}
+{% block title %}
+{{ title }}
+{% endblock %}
 
 {% block content %}
-    <h2 class="mb-4">記録の編集</h2>
-
+<div class="container mt-4">
+    <h2>記録の編集</h2>
+    <hr>
     <form method="POST" action="{{ url_for('edit_record', record_id=record.id) }}">
         <div class="mb-3">
             <label for="date" class="form-label">日付</label>
+            {# value属性で既存のrecord.dateの値をセットする #}
+            {# record.date は datetime.date オブジェクトなので、ISOフォーマットに変換してvalueに渡す #}
             <input type="date" class="form-control" id="date" name="date" value="{{ record.date.strftime('%Y-%m-%d') }}" required>
         </div>
         <div class="mb-3">
             <label for="weight" class="form-label">体重 (kg)</label>
-            <input type="number" step="0.1" class="form-control" id="weight" name="weight" value="{{ "%.1f"|format(record.weight) }}" required>
+            <input type="number" step="0.01" class="form-control" id="weight" name="weight" value="{{ record.weight }}" required>
         </div>
         <div class="mb-3">
-            <label for="height" class="form-label">身長 (cm)</label>
-            <input type="number" step="0.1" class="form-control" id="height" name="height" value="{{ "%.1f"|format(record.height) }}" required>
+            <label for="height" class="form-label">身長 (cm) <small class="text-muted">(任意 - BMI計算に使用)</small></label>
+            <input type="number" step="0.1" class="form-control" id="height" name="height" value="{{ record.height if record.height else '' }}">
         </div>
-        <button type="submit" class="btn btn-primary">更新</button>
-        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary ms-2">キャンセル</a>
+        <div class="mb-3">
+            <label for="notes" class="form-label">メモ</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3">{{ record.notes if record.notes else '' }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">変更を保存</button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">キャンセル</a>
     </form>
+</div>
 {% endblock %}
